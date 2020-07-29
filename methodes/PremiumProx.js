@@ -694,7 +694,7 @@ async function PremiumProx(
           'ReCaptcha is detected, Retrying with another proxy 🔁'
         );
         console.log('CAPTCHA DETECTED');
-        throw new Error('captcha');
+        throw new Error('captcha detected');
       }
       io.emit(
         'premium',
