@@ -817,6 +817,7 @@ async function PremiumProx(
       await scrapMod.create(scrapObj);
       io.emit('premium', `Tasks finished ... ✅`);
     } catch (err) {
+      console.log(err);
       if (err.message === 'No ads found for this website') {
         success++;
       } else {
