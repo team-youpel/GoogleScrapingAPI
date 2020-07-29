@@ -573,9 +573,6 @@ let page;
 let browser;
 
 // ! ******
-let success = 0;
-let HowMuch = 5;
-let errorsCount = 0;
 
 // ! ******
 async function PremiumProx(
@@ -586,6 +583,9 @@ async function PremiumProx(
   platform = 'Desktop',
   googleCountry = 'Com'
 ) {
+  let success = 0;
+  let HowMuch = 0;
+  let errorsCount = 0;
   HowMuch = numproxies;
   while (success < HowMuch && errorsCount < 500) {
     console.log('STEP ', success + 1);
@@ -817,7 +817,6 @@ async function PremiumProx(
       await scrapMod.create(scrapObj);
       io.emit('premium', `Tasks finished ... ✅`);
     } catch (err) {
-      console.log(err);
       if (err.message === 'No ads found for this website') {
         success++;
       } else {
