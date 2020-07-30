@@ -325,6 +325,7 @@ async function PremiumProx(
     } catch (err) {
       // ! CLIENT ERRORS :
       if (err.message === 'No ads found for this website') {
+        success++;
         var randomnumber2 = uuidv1();
         let picturePath2;
         try {
@@ -369,10 +370,10 @@ async function PremiumProx(
         await browser.close();
         console.log(scrapObj);
         await errorsMod.create(scrapObj);
-        success++;
       }
       // ! ADMIN ERRORS
       else {
+        errorsCount++;
         var randomnumber3 = uuidv1();
         let picturePath3;
         try {
@@ -417,7 +418,6 @@ async function PremiumProx(
         await browser.close();
         console.log(scrapObj);
         await adminErrorsMod.create(scrapObj);
-        errorsCount++;
       }
       console.log('ERRORS COUNT', errorsCount);
     }
