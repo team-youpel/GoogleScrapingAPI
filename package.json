@@ -22,6 +22,7 @@
     "puppeteer-extra-plugin-recaptcha": "^3.1.10",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
     "puppeteer-page-proxy": "^1.2.5",
+    "puppeteer-recorder": "^1.0.7",
     "random-useragent": "^0.3.1",
     "request-promise": "^4.2.5",
     "socket.io": "^2.3.0",
