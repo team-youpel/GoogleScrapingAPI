@@ -96,7 +96,7 @@ async function PremiumProx(
     try {
       scrapObj = [];
       browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -170,6 +170,12 @@ async function PremiumProx(
         'premium',
         `${liveStepCount} ⌛ Typing the keyword: ${keyword} 🔠`
       );
+      await page.waitForSelector('iframe');
+      const elementHandle = await page.$('iframe');
+      const frame = await elementHandle.contentFrame();
+      const ele = await frame.$('#introAgreeButton > span > span');
+      await ele.click();
+
       await page.waitFor(5000);
       await page.click('[name=q]').catch(err => {
         throw err;
