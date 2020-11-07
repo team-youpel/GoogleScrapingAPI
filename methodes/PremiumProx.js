@@ -96,7 +96,7 @@ async function PremiumProx(
     try {
       scrapObj = [];
       browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
