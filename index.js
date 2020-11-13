@@ -19,7 +19,7 @@ app.use(cors());
 
 app.get('/', (req, res) => {
   res.send({
-    message: 'Hi man!!'
+    message: 'Hi man women!!'
   });
 });
 app.use('/api', scrapRouter);
