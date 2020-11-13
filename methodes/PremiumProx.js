@@ -1,3 +1,5 @@
+console.log('Hiiiiiiiiiiiiiiiiii');
+
 const puppeteer = require('puppeteer-extra');
 const nodemailer = require('nodemailer');
 const { v1: uuidv1 } = require('uuid');
