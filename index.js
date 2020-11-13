@@ -17,6 +17,11 @@ io.emit('process', `Server is UP 👨‍💻`);
 // ! App Middleware
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send({
+    message: 'Hi man!!'
+  });
+});
 app.use('/api', scrapRouter);
 
 http.listen(port, function() {
