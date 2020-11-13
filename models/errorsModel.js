@@ -47,6 +47,6 @@ const errorsSchema = new mongoose.Schema({
   }
 });
 
-const errorsMod = mongoose.model('Errors', errorsSchema);
+const errorsMod = mongoose.model('YoupelErrors', errorsSchema);
 
 module.exports = errorsMod;

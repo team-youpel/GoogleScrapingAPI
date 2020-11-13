@@ -11,7 +11,6 @@ var port = process.env.PORT || 3000;
 const puppeteer = require('puppeteer');
 const nodemailer = require('nodemailer');
 const scrapRouter = require('./routes/scrapRoutes');
-
 app.use(express.json({ limit: '50mb' }));
 io.emit('process', `Server is UP 👨‍💻`);
 

@@ -50,6 +50,6 @@ const scrapSchema = new mongoose.Schema({
   }
 });
 
-const scrapMod = mongoose.model('Scrap', scrapSchema);
+const scrapMod = mongoose.model('YoupelScrap', scrapSchema);
 
 module.exports = scrapMod;
