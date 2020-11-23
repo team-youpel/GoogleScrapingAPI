@@ -41,7 +41,7 @@ const runPremiumProxyScrap = async (req, res) => {
   whatMethod = {
     method: 'premium'
   };
-  if (!keyword || !website || !req.body.numproxies) {
+  if (!keyword ||  !req.body.numproxies) {
     res.status(500).json({
       success: false,
 

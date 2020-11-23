@@ -1,4 +1,4 @@
-console.log('Hiiiiiiiiiiiiiiiiii');
+const config = require('../config');
 
 const puppeteer = require('puppeteer-extra');
 const nodemailer = require('nodemailer');
@@ -8,6 +8,8 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const scrapMod = require('../models/scrapModel');
 const errorsMod = require('../models/errorsModel');
 const adminErrorsMod = require('../models/adminErrorsModel');
+
+const Task = require('../models/taskModel');
 const randomUseragent = require('random-useragent');
 const userAgent = randomUseragent.getRandom();
 const dotenv = require('dotenv');
@@ -44,43 +46,17 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET
 });
 
-function getHtmlEmail(pageTitle) {
-  var template = '';
-  for (var i = 0; i < scrapObj.length; i++) {
-    template += `
-      <h1> Page Title : | ${pageTitle} </h1>
-  <b> Success : | ${scrapObj[i].Success} </b> <br>
-
-  <b> Page Link : |   ${scrapObj[i].PageLink} </b> <br>
-  <b> ScreenShoot : |   ${scrapObj[i].screenPath} </b> <br>
-  <b> Date : |   ${scrapObj[i].dateTime} </b> <br>
-  <b style="color:red"> Proxy : |   ${scrapObj[i].proxy} </> <br>
-  `;
-  }
-  console.log('YOUR EMAIL IS:', template);
-  return template;
-}
-
-// ! ***************************************************************** ! //
-
-// ! ***************************************************************** ! //
-
-// ! ***************************************************************** ! //
-function timer(ms) {
-  return new Promise(res => setTimeout(res, ms));
-}
 // ! ***************************************************************** ! //
 let pageTitle;
 let liveStepCount;
 let page;
 let browser;
+let index;
+let taskId;
 
-// ! ******
-
-// ! ******
 async function PremiumProx(
   keyword,
-  website,
+  website = ['github', 'facededededbook'],
   numproxies,
   lang,
   platform = 'Desktop',
@@ -89,16 +65,20 @@ async function PremiumProx(
   let success = 0;
   let HowMuch = 0;
   let errorsCount = 0;
-  HowMuch = numproxies;
+  HowMuch = numproxies * website.length;
+  const currentTask = await Task.create({ dateLaunched: Date.now() });
+  taskId = currentTask._id;
   while (success < HowMuch && errorsCount < 500) {
     console.log('STEP ', success + 1);
+
+    console.log('ID Of created task is', taskId);
 
     liveStepCount = success + 1 + '/' + numproxies;
     io.emit('premium', `${liveStepCount} ⌛ Browser is launching... 🌐`);
     try {
       scrapObj = [];
       browser = await puppeteer.launch({
-        headless: true,
+        headless: config.headlessType,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -168,10 +148,7 @@ async function PremiumProx(
       }
 
       await page.waitFor(5000);
-      io.emit(
-        'premium',
-        `${liveStepCount} ⌛ Typing the keyword: ${keyword} 🔠`
-      );
+      io.emit('premium', `Bypassing the popup`);
       await page.waitForSelector('iframe');
       const elementHandle = await page.$('iframe');
       const frame = await elementHandle.contentFrame();
@@ -187,7 +164,10 @@ async function PremiumProx(
       });
 
       await page.keyboard.press('Enter');
-
+      io.emit(
+        'premium',
+        `${liveStepCount} ⌛ Typing the keyword: ${keyword} 🔠`
+      );
       await page.waitFor(5000);
 
       await page.waitFor(2000);
@@ -210,126 +190,129 @@ async function PremiumProx(
         `${liveStepCount} ⌛ Search then select matches results 🔍`
       );
       await page.waitFor(2000);
-      const elements = await page.$x("//a[contains(., '" + website + "')]");
-      if (elements.length === 0) {
-        // console.log('NO ADS');
-        //   io.emit('premium', `❌ : No ads found for this keyword `);
-        throw new Error(`No ads found for this website`);
-      }
-      await page.waitFor(3000);
-      const newPagePromise = new Promise(x =>
-        browser.once('targetcreated', target => x(target.page()))
-      ); // declare promise
-      blockResourcesPlugin.blockedTypes.add('stylesheet');
-      blockResourcesPlugin.blockedTypes.add('other'); // e.g. f
-      blockResourcesPlugin.blockedTypes.add('font'); // e.g. f
-      blockResourcesPlugin.blockedTypes.add('texttrack'); // e.g. f
-      blockResourcesPlugin.blockedTypes.add('websocket'); // e.g. f
-      blockResourcesPlugin.blockedTypes.add('manifest');
-      await elements[0].click({ button: 'middle' });
-      page2 = await newPagePromise;
-      if (platform === 'Mobile') {
-        await page2.setUserAgent(
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
+
+      for (i = 0; i < website.length; i++) {
+        //! Here!!!!
+        const elements = await page.$x(
+          "//a[contains(., '" + website[i] + "')]"
         );
-        await page2.setViewport({
-          width: 375,
-          height: 812,
-          deviceScaleFactor: 3,
-          isMobile: true,
-          hasTouch: true,
-          isLandscape: false
-        });
-      }
-      await page2.bringToFront();
-
-      blockingWait(25);
-      function blockingWait(seconds) {
-        let waitTill = new Date(new Date().getTime() + seconds * 1000);
-        while (waitTill > new Date()) {}
-      }
-
-      var randomnumber = uuidv1();
-
-      try {
-        await page.screenshot({
-          path: `./pictures/${randomnumber}.png`,
-          fullPage: true
-        });
-      } catch (error) {
-        throw new Error(
-          'Error: Protocol error (Page.captureScreenshot): Cannot take screenshot with 0 width.'
-        );
-      }
-      await page.waitFor(1000);
-
-      await page.waitFor(1000);
-      io.emit('premium', `${liveStepCount} ⌛ Taking a screenshot... 🖼️`);
-      await page.waitFor(2000);
-      const CurrentPageTitle = await page.title();
-      pageTitle = CurrentPageTitle;
-      const CurrentPageLink = await page.url();
-
-      io.emit(
-        'premium',
-        `Page title: ${pageTitle}, |
-             Page Url: ${CurrentPageLink}`
-      );
-      await cloudinary.uploader
-        .upload(`./pictures/${randomnumber}.png`)
-        .then(res => {
-          picturePath = res.url;
-          io.emit(
-            'premium',
-            `${liveStepCount} ⌛ Screenshot uploaded to cloudinary with success 📶`
-          );
-        });
-      scrapObj.push(
-        ScrapFunctions.getTheObject(
-          true,
-          'Everything works great!',
-          CurrentPageTitle,
-          CurrentPageLink,
-          picturePath,
-          ScrapFunctions.fullDate(),
-          'PREMIUM',
-          platform,
-          keyword,
-          website
-        )
-      );
-      console.log('No links left to click');
-      io.emit('premium', `Task ${success + 1} is finshed with success...  🔰`);
-      await page.waitFor(1000);
-
-      await page.waitFor(1000);
-      io.emit('premium', `${liveStepCount} ⌛ Sending result to Gmail... 📨`);
-      await page.waitFor(1000);
-      // ! Email
-      let mailOptions = {
-        from: 'Node JS',
-        to: 'brahim.akarouch@gmail.com',
-        subject: 'Testing',
-        html: getHtmlEmail(pageTitle)
-      };
-
-      // ! Sending Email
-      transporter.sendMail(mailOptions, function(err, data) {
-        if (err) {
-          console.log('error');
-        } else {
-          console.log('email is working');
+        if (elements.length === 0) {
+          // console.log('NO ADS');
+          //   io.emit('premium', `❌ : No ads found for this keyword `);
+          console.log('NO ADS FOUND');
+          continue;
         }
-      });
+        await page.waitFor(3000);
+        const newPagePromise = new Promise(x =>
+          browser.once('targetcreated', target => x(target.page()))
+        ); // declare promise
+        blockResourcesPlugin.blockedTypes.add('stylesheet');
+        blockResourcesPlugin.blockedTypes.add('other'); // e.g. f
+        blockResourcesPlugin.blockedTypes.add('font'); // e.g. f
+        blockResourcesPlugin.blockedTypes.add('texttrack'); // e.g. f
+        blockResourcesPlugin.blockedTypes.add('websocket'); // e.g. f
+        blockResourcesPlugin.blockedTypes.add('manifest');
+        await elements[0].click({ button: 'middle' });
+        let page2 = await newPagePromise;
+        await page2.bringToFront();
+        await page2.waitForNavigation({
+          waitUntil: 'networkidle0',
+          timeout: 120000
+        }),
+          await page2.waitFor(5000);
 
-      success++;
-      console.log('SUCCESS COUNT', success);
+        var randomnumber = uuidv1();
+        try {
+          await page2.screenshot({
+            path: `./pictures/${randomnumber}.png`,
+            fullPage: true
+          });
+        } catch (error) {
+          throw new Error(
+            'Error: Protocol error (Page.captureScreenshot): Cannot take screenshot with 0 width.'
+          );
+        }
+        await page.waitFor(1000);
 
+        await page.waitFor(1000);
+        io.emit('premium', `${liveStepCount} ⌛ Taking a screenshot... 🖼️`);
+        await page.waitFor(2000);
+        const CurrentPageTitle = await page2.title();
+        pageTitle = CurrentPageTitle;
+        const CurrentPageLink = await page2.url();
+        console.log('Current title', CurrentPageTitle);
+        io.emit(
+          'premium',
+          `Page title: ${pageTitle}, |
+               Page Url: ${CurrentPageLink}`
+        );
+        await cloudinary.uploader
+          .upload(`./pictures/${randomnumber}.png`)
+          .then(res => {
+            picturePath = res.url;
+            io.emit(
+              'premium',
+              `${liveStepCount} ⌛ Screenshot uploaded to cloudinary with success 📶`
+            );
+          });
+        scrapObj.push(
+          ScrapFunctions.getTheObject(
+            true,
+            'Everything works great!',
+            CurrentPageTitle,
+            CurrentPageLink,
+            picturePath,
+            ScrapFunctions.fullDate(),
+            'PREMIUM',
+            platform,
+            keyword,
+            website[index]
+          )
+        );
+        io.emit(
+          'premium',
+          `Task ${success + 1} is finshed with success...  🔰`
+        );
+        await page.waitFor(1000);
+
+        await page.waitFor(1000);
+
+        success++;
+        console.log('SUCCESS COUNT', success);
+
+        io.emit('premium', `Save Results to database...💽`);
+        await page.waitFor(2000);
+        await scrapMod.create(scrapObj);
+        let CurrentuserAgent = await browser.userAgent();
+        let CurrentViewPort = await page2.viewport();
+        await Task.findOneAndUpdate(
+          { _id: taskId },
+          {
+            $addToSet: {
+              successfulClicks: {
+                screenShot: picturePath,
+                pageTitle: CurrentPageTitle,
+                clickedAt: Date.now(),
+                userAgent: CurrentuserAgent,
+                screenResolution: CurrentViewPort
+              }
+            }
+          }
+        );
+
+        io.emit('premium', `Tasks finished ... ✅`);
+        // blockingWait(25);
+        // function blockingWait(seconds) {
+        //   let waitTill = new Date(new Date().getTime() + seconds * 1000);
+        //   while (waitTill > new Date()) {}
+        // }
+        await page2.goto('about:blank');
+        await page2.close();
+        await page.bringToFront();
+        await page.waitFor(2000);
+        scrapObj = [];
+      }
       await browser.close();
-      io.emit('premium', `Save Results to database...💽`);
-      await page.waitFor(2000);
-      await scrapMod.create(scrapObj);
-      io.emit('premium', `Tasks finished ... ✅`);
     } catch (err) {
       // ! CLIENT ERRORS :
       if (err.message === 'No ads found for this website') {
@@ -353,7 +336,7 @@ async function PremiumProx(
 
         await cloudinary.uploader
           .upload(`./pictures/ERROR${randomnumber2}.png`)
-          .then(res => {
+          .then(async res => {
             picturePath2 = res.url;
             io.emit(
               'process7',
@@ -370,14 +353,32 @@ async function PremiumProx(
                 'PREMIUM',
                 platform,
                 keyword,
-                website
+                website[index]
               )
+            );
+
+            let CurrentuserAgent = await browser.userAgent();
+            let CurrentViewPort = await page.viewport();
+            await Task.findOneAndUpdate(
+              { _id: taskId },
+              {
+                $addToSet: {
+                  failedClicks: {
+                    screenShot: picturePath2,
+                    failedAt: Date.now(),
+                    userAgent: CurrentuserAgent,
+                    screenResolution: CurrentViewPort,
+                    errorMessage: errorMessage
+                  }
+                }
+              }
             );
           });
 
         await browser.close();
         console.log(scrapObj);
         await errorsMod.create(scrapObj);
+        scrapObj = [];
       }
       // ! ADMIN ERRORS
       else {
@@ -418,7 +419,7 @@ async function PremiumProx(
                 'PREMIUM',
                 platform,
                 keyword,
-                website
+                website[index]
               )
             );
           });
@@ -426,19 +427,16 @@ async function PremiumProx(
         await browser.close();
         console.log(scrapObj);
         await adminErrorsMod.create(scrapObj);
+        scrapObj = [];
       }
       console.log('ERRORS COUNT', errorsCount);
+    } finally {
+      await Task.findByIdAndUpdate(taskId, {
+        finished: true,
+        dateFinished: Date.now()
+      });
     }
   }
 }
-
-// testPremiumProx(
-//   'Afvoer verstopt amsterdam',
-//   'ontstoppings-service.nl/loodgieter',
-//   1,
-//   'Netherlands',
-//   'Desktop',
-//   'nl'
-// );
 
 module.exports = PremiumProx;

@@ -102,6 +102,5 @@ async function bandwidthFun() {
   }
 }
 
-bandwidthFun();
 
 module.exports = bandwidthFun;
