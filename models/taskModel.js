@@ -11,13 +11,26 @@ const taskSchema = new mongoose.Schema(
     websites: {
       type: Array
     },
+    clickForEachWebsite: {
+      type: Number,
+      default: 1
+    },
+    proxyCountry: {
+      type: String,
+      default: 'United Stated'
+    },
+    googleCountry: {
+      type: String,
+      default: 'Com'
+    },
     dateLaunched: {
       type: Date,
       default: new Date()
     },
-    finished: {
-      type: Boolean,
-      default: false
+    status: {
+      type: String,
+      enum: ['queued', 'running', 'finished'],
+      default: 'running'
     },
     dateFinished: {
       type: Date,

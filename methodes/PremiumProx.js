@@ -31,24 +31,35 @@ let index;
 let taskId;
 
 async function PremiumProx(
-  keyword,
-  website,
-  numproxies,
-  lang,
+  cronJobTaskid,
+  keywordToFocus,
+  websites,
+  clickForEachWebsite,
+  proxyCountry,
   platform = 'Desktop',
   googleCountry = 'Com'
 ) {
   let success = 0;
   let HowMuch = 0;
   let errorsCount = 0;
-  HowMuch = numproxies * website.length;
-  const currentTask = await Task.create({
-    dateLaunched: Date.now(),
-    Websites: website
-  });
-  taskId = currentTask._id;
+  HowMuch = clickForEachWebsite * websites.length;
+
+  if (!cronJobTaskid) {
+    const currentTask = await Task.create({
+      dateLaunched: Date.now(),
+      websites: websites,
+      status: 'running'
+    });
+    taskId = currentTask._id;
+  } else {
+    taskId = cronJobTaskid;
+    const editingTask = await Task.findByIdAndUpdate(taskId, {
+      status: 'running'
+    });
+  }
+
   while (success < HowMuch && errorsCount < 500) {
-    liveStepCount = success + 1 + '/' + numproxies;
+    liveStepCount = success + 1 + '/' + clickForEachWebsite;
 
     try {
       browser = await puppeteer.launch({
@@ -68,7 +79,7 @@ async function PremiumProx(
       await page.waitFor(7000);
       await page.authenticate({
         username: 'cathli5u',
-        password: `NNW5u5R612Bj3PkL_country-${lang}`
+        password: `NNW5u5R612Bj3PkL_country-${proxyCountry}`
       });
       blockResourcesPlugin.blockedTypes.add('image');
       blockResourcesPlugin.blockedTypes.add('media');
@@ -104,7 +115,7 @@ async function PremiumProx(
         throw err;
       });
 
-      await page.keyboard.type(keyword, {
+      await page.keyboard.type(keywordToFocus, {
         delay: 80
       });
 
@@ -249,8 +260,8 @@ async function PremiumProx(
       console.log('ERRORS COUNT', errorsCount);
     } finally {
       await Task.findByIdAndUpdate(taskId, {
-        finished: true,
-        dateFinished: Date.now()
+        dateFinished: Date.now(),
+        progress: 'finished'
       });
     }
   }
