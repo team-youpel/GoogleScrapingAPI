@@ -3,6 +3,17 @@ const CustomProx = require('../methodes/CustomProx');
 const scrapMod = require('./../models/scrapModel');
 const errorsMod = require('./../models/errorsModel');
 const bandwidthFun = require('./../bandwidth');
+const Task = require('../models/taskModel');
+
+const getAllTasks = async (req, res) => {
+  const tasks = await Task.find({}).sort({ _id: 'desc' });
+  res.status(201).json({
+    status: 'success',
+    results: tasks.length,
+    data: tasks
+  });
+};
+
 // ! Scrap with Proxy
 
 const runCustomProx = async (req, res) => {
@@ -41,7 +52,7 @@ const runPremiumProxyScrap = async (req, res) => {
   whatMethod = {
     method: 'premium'
   };
-  if (!keyword ||  !req.body.numproxies) {
+  if (!keyword || !req.body.numproxies) {
     res.status(500).json({
       success: false,
 
@@ -159,5 +170,6 @@ module.exports = {
   runPremiumProxyScrap,
   bandwidth,
   deletebadresults,
-  deleteokresults
+  deleteokresults,
+  getAllTasks
 };
