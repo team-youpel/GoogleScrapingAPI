@@ -28,30 +28,43 @@ app.get('/', (req, res) => {
 });
 const timer = ms => new Promise(res => setTimeout(res, ms));
 
-// var j = schedule.scheduleJob('*/5 * * * * *', async function() {
-//   const task = await Task.find({
-//     status: { $ne: 'running' } && { $ne: 'finished' }
-//   });
-//   if (task.length >= 1) {
-//     console.log(
-//       'No Task running right now, now the Queued ones will be executed!',
-//       new Date().toISOString()
-//     );
-//     console.log(task);
-//     //! execute task with that ID
-//     await PremiumProx(
-//       task._id,
-//       task.keywordToFocus,
-//       task.websites,
-//       task.clickForEachWebsite,
-//       task.proxyCountry,
-//       'Desktop',
-//       task.googleCountry
-//     );
-//   } else {
-//     console.log('A task is running right now', new Date().toISOString());
-//   }
-// });
+var j = schedule.scheduleJob('*/10 * * * * *', async function() {
+  const runningTasks = await Task.find({
+    status: 'running'
+  });
+  if (runningTasks.length >= 1) {
+    console.log('A task is running right now', new Date().toISOString());
+  } else if (runningTasks.length === 0) {
+    console.log(
+      'No task is running right now, the Queued ones will be executed if are they available!',
+      new Date().toISOString()
+    );
+
+    const firstQueuedTask = await Task.find({
+      status: 'queued'
+    });
+
+    if (firstQueuedTask.length >= 1) {
+      await PremiumProx(
+        firstQueuedTask[0]._id,
+        firstQueuedTask[0].keywordToFocus,
+        firstQueuedTask[0].websites,
+        firstQueuedTask[0].clickForEachWebsite,
+        firstQueuedTask[0].proxyCountry,
+        'Desktop',
+        firstQueuedTask[0].googleCountry
+      );
+    }
+  }
+  //! execute task with that ID
+
+  // } else {
+  //   console.log('No task is running, ', new Date().toISOString());
+  //   const queuedTask = await Task.find({
+  //     status: 'running'
+  //   });
+  // }
+});
 
 app.use('/api', scrapRouter);
 

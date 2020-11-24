@@ -130,9 +130,9 @@ async function PremiumProx(
       }
       await page.waitFor(2000);
 
-      for (i = 0; i < website.length; i++) {
+      for (i = 0; i < websites.length; i++) {
         const elements = await page.$x(
-          "//a[contains(., '" + website[i] + "')]"
+          "//a[contains(., '" + websites[i] + "')]"
         );
         if (elements.length === 0) {
           success++;
@@ -166,7 +166,7 @@ async function PremiumProx(
                       clickedAt: Date.now(),
                       userAgent: CurrentuserAgent,
                       screenResolution: CurrentViewPort,
-                      errorMessage: `No ads found for ${website[i]}`
+                      errorMessage: `No ads found for ${websites[i]}`
                     }
                   }
                 },
@@ -248,6 +248,7 @@ async function PremiumProx(
       }
       await browser.close();
     } catch (err) {
+      console.log(err);
       // ! CLIENT ERRORS :
       if (err.message === 'No ads found for this website') {
         success++;

@@ -43,14 +43,19 @@ const runCustomProx = async (req, res) => {
 // ! Scrap with Premium Proxy
 
 const runPremiumProxyScrap = async (req, res) => {
-  keywordToFocus = req.body.keywordtofocus;
-  websites = req.body.websites;
-  clickForEachWebsite = req.body.clickforeachwebsite;
-  proxyCountry = req.body.proxycountry;
-  platform = 'Desktop';
-  googleCountry = req.body.googlecountry;
+  console.log(req.body);
+  let keywordToFocus = req.body.keywordtofocus;
+  let websites = req.body.websites;
+  let clickForEachWebsite = req.body.clickforeachwebsite;
+  let proxyCountry = req.body.proxycountry;
+  let platform = 'Desktop';
+  let googleCountry = req.body.googlecountry;
 
-  if (!req.body.keywordtofocus || !req.body.clickforeachwebsite || !req.body.websites) {
+  if (
+    !req.body.keywordtofocus ||
+    !req.body.clickforeachwebsite ||
+    !req.body.websites
+  ) {
     res.status(500).json({
       success: false,
 
@@ -58,40 +63,52 @@ const runPremiumProxyScrap = async (req, res) => {
         'Pleaseee, be sure you provide a Website/Keyword/Number of Proxies ...'
     });
   } else {
+    const currentTask = await Task.create({
+      dateLaunched: Date.now(),
+      websites: req.body.websites,
+      keywordToFocus: req.body.keywordtofocus,
+      clickForEachWebsite: req.body.clickforeachwebsite,
+      proxyCountry: req.body.proxycountry,
+      googleCountry: req.body.googlecountry,
+      status: 'queued'
+    });
     res.status(201).json({
       success: true,
-      message: 'The process is starting...'
+      message: 'Your task has been added with success',
+      taskID: currentTask._id
     });
   }
-  //? Check if there is a current working task
-  const task = await Task.find({
-    status: { $ne: 'running' }
-  });
-  if (task.length >= 1) {
-    console.log(
-      'No Task running right now, you can execute a new one',
-      new Date().toISOString()
-    );
-    await PremiumProx(
-      keywordToFocus,
-      websites,
-      clickForEachWebsite,
-      proxyCountry,
-      platform,
-      googleCountry
-    );
-  } else {
-    console.log(
-      'A task is running right now, Yours will be added to the Queued',
-      new Date().toISOString()
-    );
-    const newTask = await Task.create({
-      websites: websites,
-      status: 'queued',
-      clickForEachWebsite: clickForEachWebsite,
-      keywordToFocus: keywordToFocus
-    });
-  }
+
+  // //? Check if there is a current working task
+  // const task = await Task.find({
+  //   status: { $ne: 'running' }
+  // });
+  // if (task.length >= 1) {
+  //   console.log(
+  //     'No Task running right now, you can execute a new one',
+  //     new Date().toISOString()
+  //   );
+  //   await PremiumProx(
+  //     null,
+  //     keywordToFocus,
+  //     websites,
+  //     clickForEachWebsite,
+  //     proxyCountry,
+  //     platform,
+  //     googleCountry
+  //   );
+  // } else {
+  //   console.log(
+  //     'A task is running right now, Yours will be added to the Queued',
+  //     new Date().toISOString()
+  //   );
+  //   const newTask = await Task.create({
+  //     websites: websites,
+  //     status: 'queued',
+  //     clickForEachWebsite: clickForEachWebsite,
+  //     keywordToFocus: keywordToFocus
+  //   });
+  // }
 };
 
 // ! Scrap with server IP
