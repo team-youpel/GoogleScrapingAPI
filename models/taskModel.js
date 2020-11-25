@@ -112,6 +112,5 @@ taskSchema.virtual('FailedClicksCount').get(function() {
 
 const Task = mongoose.model('Task', taskSchema);
 
-
 // Exporting User Model
 module.exports = Task;
