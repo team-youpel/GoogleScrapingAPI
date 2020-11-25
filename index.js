@@ -46,6 +46,7 @@ var j = schedule.scheduleJob('*/10 * * * * *', async function() {
 
     if (firstQueuedTask.length >= 1) {
       await PremiumProx(
+        firstQueuedTask[0].taskName,
         firstQueuedTask[0]._id,
         firstQueuedTask[0].keywordToFocus,
         firstQueuedTask[0].websites,

@@ -31,6 +31,7 @@ let index;
 let taskId;
 
 async function PremiumProx(
+  taskName,
   cronJobTaskid,
   keywordToFocus,
   websites,
@@ -46,6 +47,7 @@ async function PremiumProx(
 
   if (!cronJobTaskid) {
     const currentTask = await Task.create({
+      taskName: taskName,
       dateLaunched: Date.now(),
       websites: websites,
       status: 'running'
@@ -262,7 +264,7 @@ async function PremiumProx(
     } finally {
       await Task.findByIdAndUpdate(taskId, {
         dateFinished: Date.now(),
-        progress: 'finished'
+        status: 'finished'
       });
     }
   }

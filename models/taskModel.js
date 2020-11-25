@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 // User Schema
 const taskSchema = new mongoose.Schema(
   {
+    taskName: {
+      type: String
+    },
     keywordToFocus: {
       type: String
     },
@@ -93,6 +96,18 @@ const taskSchema = new mongoose.Schema(
 
 taskSchema.virtual('numberOfClicksVirtual').get(function() {
   return this.failedClicks.length + this.successfulClicks.length;
+});
+
+// taskSchema.virtual('datefinishedSM').get(function() {
+//   return this.dateFinished.toString().substr(0, 19);
+// });
+
+taskSchema.virtual('SuccessfulClicksCount').get(function() {
+  return this.successfulClicks.length;
+});
+
+taskSchema.virtual('FailedClicksCount').get(function() {
+  return this.failedClicks.length;
 });
 
 const Task = mongoose.model('Task', taskSchema);

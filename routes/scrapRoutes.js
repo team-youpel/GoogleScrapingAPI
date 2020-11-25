@@ -29,6 +29,6 @@ router.route('/runpremiumproxyscrap').post(runPremiumProxyScrap);
 router.route('/bandwidth').get(bandwidth);
 router.route('/deletebadresults').delete(deletebadresults);
 router.route('/deleteokresults').delete(deleteokresults);
-router.route('/getalltasks').get(getAllTasks);
+router.route('/alltasks').get(getAllTasks);
 
 module.exports = router;

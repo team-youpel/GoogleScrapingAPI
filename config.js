@@ -1,3 +1,3 @@
 module.exports = {
-  headlessType: false
+  headlessType: true
 };

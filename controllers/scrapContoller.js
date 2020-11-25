@@ -44,6 +44,12 @@ const runCustomProx = async (req, res) => {
 
 const runPremiumProxyScrap = async (req, res) => {
   console.log(req.body);
+  let taskName;
+  if (!req.body.taskname) {
+    taskName = req.body.keywordtofocus;
+  } else {
+    taskName = req.body.taskname;
+  }
   let keywordToFocus = req.body.keywordtofocus;
   let websites = req.body.websites;
   let clickForEachWebsite = req.body.clickforeachwebsite;
@@ -64,6 +70,7 @@ const runPremiumProxyScrap = async (req, res) => {
     });
   } else {
     const currentTask = await Task.create({
+      taskName: taskName,
       dateLaunched: Date.now(),
       websites: req.body.websites,
       keywordToFocus: req.body.keywordtofocus,
