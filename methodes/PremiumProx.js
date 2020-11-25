@@ -23,12 +23,6 @@ cloudinary.config({
 });
 
 // ! ***************************************************************** ! //
-let pageTitle;
-let liveStepCount;
-let page;
-let browser;
-let index;
-let taskId;
 
 async function PremiumProx(
   taskName,
@@ -40,6 +34,12 @@ async function PremiumProx(
   platform = 'Desktop',
   googleCountry = 'Com'
 ) {
+  let pageTitle;
+  let liveStepCount;
+  let page;
+  let browser;
+  let index;
+  let taskId;
   let success = 0;
   let HowMuch = 0;
   let errorsCount = 0;
@@ -261,12 +261,17 @@ async function PremiumProx(
         errorsCount++;
       }
       console.log('ERRORS COUNT', errorsCount);
-    } finally {
-      await Task.findByIdAndUpdate(taskId, {
-        dateFinished: Date.now(),
-        status: 'finished'
-      });
     }
+  }
+
+  if (success === HowMuch) {
+    console.log(
+      'Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii'
+    );
+    await Task.findByIdAndUpdate(taskId, {
+      dateFinished: Date.now(),
+      status: 'finished'
+    });
   }
 }
 

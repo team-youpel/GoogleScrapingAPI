@@ -43,6 +43,7 @@ var j = schedule.scheduleJob('*/10 * * * * *', async function() {
     const firstQueuedTask = await Task.find({
       status: 'queued'
     });
+    console.log(firstQueuedTask);
 
     if (firstQueuedTask.length >= 1) {
       await PremiumProx(
