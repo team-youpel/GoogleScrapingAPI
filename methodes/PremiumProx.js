@@ -301,7 +301,7 @@ async function PremiumProx(
             `${random.int(
               1,
               100000
-            )} Upload a screenshot of the website to cloudinary`
+            )} Taking a screenshot of that website to cloudinary`
           );
           await page2.screenshot({
             path: `./pictures/${randomnumber}.png`,
@@ -337,7 +337,7 @@ async function PremiumProx(
               `${random.int(
                 1,
                 100000
-              )} Upload a screenshot of the website to cloudinary`
+              )} Upload a screenshot of the website to cloudinary ${picturePath}`
             );
           });
 
