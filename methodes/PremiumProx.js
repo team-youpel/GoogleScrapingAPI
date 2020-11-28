@@ -22,6 +22,17 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET
 });
 
+async function createLogs(id, type, message) {
+  await Task.findByIdAndUpdate(
+    id,
+    { $push: { logs: { type, message } } },
+    { safe: true, upsert: true },
+    function(err, model) {
+      console.log(err);
+    }
+  );
+}
+
 // ! ***************************************************************** ! //
 
 async function PremiumProx(
@@ -62,7 +73,7 @@ async function PremiumProx(
 
   while (success < HowMuch && errorsCount < 500) {
     liveStepCount = success + 1 + '/' + clickForEachWebsite;
-
+    await createLogs(taskId, 'normal', 'launch the browser');
     try {
       browser = await puppeteer.launch({
         headless: config.headlessType,
@@ -79,17 +90,25 @@ async function PremiumProx(
       page = await browser.newPage();
 
       await page.waitFor(7000);
+      await createLogs(taskId, 'normal', 'Proxy authentication');
       await page.authenticate({
         username: 'cathli5u',
         password: `NNW5u5R612Bj3PkL_country-${proxyCountry}`
       });
+      await createLogs(
+        taskId,
+        'normal',
+        'Block all images and other media files'
+      );
       blockResourcesPlugin.blockedTypes.add('image');
       blockResourcesPlugin.blockedTypes.add('media');
       try {
+        await createLogs(taskId, 'normal', `Opening google.${googleCountry}`);
         await page.goto(`https://google.${googleCountry}`, {
           waitUntil: 'networkidle2'
         });
       } catch (error) {
+        await createLogs(taskId, 'normal', `Select the search input`);
         let proxyIsWorking = true;
         await page
           .waitForSelector('[name=q]')
@@ -110,13 +129,19 @@ async function PremiumProx(
       const elementHandle = await page.$('iframe');
       const frame = await elementHandle.contentFrame();
       const ele = await frame.$('#introAgreeButton > span > span');
+      await createLogs(taskId, 'normal', `Bypass the popup`);
+
       await ele.click();
 
       await page.waitFor(5000);
       await page.click('[name=q]').catch(err => {
         throw err;
       });
-
+      await createLogs(
+        taskId,
+        'normal',
+        `Typing the keyword : ${keywordToFocus}`
+      );
       await page.keyboard.type(keywordToFocus, {
         delay: 80
       });
@@ -124,28 +149,59 @@ async function PremiumProx(
       await page.keyboard.press('Enter');
 
       await page.waitFor(9000);
+      await createLogs(taskId, 'normal', `Checking if google return a captcha`);
 
       let captcha = await page.$x(`//*[@id="recaptcha"]`);
       if (captcha.length !== 0) {
+        await createLogs(
+          taskId,
+          'error',
+          `Captcha is here.. retry with another fresh IP`
+        );
+
         console.log('CAPTCHA DETECTED');
         throw new Error('captcha detected');
       }
       await page.waitFor(2000);
 
       for (i = 0; i < websites.length; i++) {
+        await createLogs(
+          taskId,
+          'normal',
+          `check if an ads of ${websites[i]} is available to click`
+        );
+
         const elements = await page.$x(
           "//a[contains(., '" + websites[i] + "')]"
         );
         if (elements.length === 0) {
+          await createLogs(
+            taskId,
+            'error',
+            `no ads for that site with the keyword you selected`
+          );
+
           success++;
           var randomnumber2 = uuidv1();
           let picturePath2;
           try {
+            await createLogs(
+              taskId,
+              'normal',
+              `Uploading a picture to cloudinary`
+            );
+
             await page.screenshot({
               path: `./pictures/ERROR${randomnumber2}.png`,
               fullPage: true
             });
           } catch (error) {
+            await createLogs(
+              taskId,
+              'error',
+              `cannot take screenshot with 0 width`
+            );
+
             throw new Error(
               'Error: Protocol error (Page.captureScreenshot): Cannot take screenshot with 0 width.'
             );
@@ -155,9 +211,16 @@ async function PremiumProx(
           await cloudinary.uploader
             .upload(`./pictures/ERROR${randomnumber2}.png`)
             .then(async res => {
+              await createLogs(
+                taskId,
+                'normal',
+                `Screenshot is uploaded with success`
+              );
+
               picturePath2 = res.url;
               let CurrentuserAgent = await browser.userAgent();
               let CurrentViewPort = await page.viewport();
+              await createLogs(taskId, 'normal', `Update the database records`);
 
               await Task.findOneAndUpdate(
                 { _id: taskId },
@@ -184,6 +247,7 @@ async function PremiumProx(
 
           continue;
         }
+        await createLogs(taskId, 'normal', `Click on the first Ad`);
         await page.waitFor(3000);
         const newPagePromise = new Promise(x =>
           browser.once('targetcreated', target => x(target.page()))
@@ -199,6 +263,11 @@ async function PremiumProx(
 
         var randomnumber = uuidv1();
         try {
+          await createLogs(
+            taskId,
+            'normal',
+            'Upload a screenshot of the website to cloudinary'
+          );
           await page2.screenshot({
             path: `./pictures/${randomnumber}.png`,
             fullPage: true
@@ -210,6 +279,11 @@ async function PremiumProx(
         }
 
         await page.waitFor(4000);
+        await createLogs(
+          taskId,
+          'normal',
+          'Getting the current page title and current link'
+        );
 
         const CurrentPageTitle = await page2.title();
         pageTitle = CurrentPageTitle;
@@ -217,17 +291,36 @@ async function PremiumProx(
         console.log('Current title', CurrentPageTitle);
         await cloudinary.uploader
           .upload(`./pictures/${randomnumber}.png`)
-          .then(res => {
+          .then(async res => {
             picturePath = res.url;
+            await createLogs(
+              taskId,
+              'normal',
+              'Upload a screenshot of the website to cloudinary'
+            );
           });
 
         await page.waitFor(2000);
 
         success++;
-        console.log('SUCCESS COUNT', success);
+        await createLogs(taskId, 'normal', `Success count ${success}`);
+
         await page.waitFor(2000);
+
         let CurrentuserAgent = await browser.userAgent();
         let CurrentViewPort = await page2.viewport();
+        await createLogs(
+          taskId,
+          'normal',
+          `Current UserAgent ${CurrentuserAgent}, current view report ${CurrentViewPort}`
+        );
+
+        await createLogs(
+          taskId,
+          'normal',
+          `Updating the database record with the new data`
+        );
+
         await Task.findOneAndUpdate(
           { _id: taskId },
           {
@@ -244,10 +337,14 @@ async function PremiumProx(
         );
 
         await page2.goto('about:blank');
+
         await page2.close();
+        await createLogs(taskId, 'normal', `Closing the page2`);
+
         await page.bringToFront();
         await page.waitFor(2000);
       }
+      await createLogs(taskId, 'normal', `Closing the browser`);
       await browser.close();
     } catch (err) {
       console.log(err);
@@ -257,6 +354,7 @@ async function PremiumProx(
       }
       // ! ADMIN ERRORS
       else {
+        await createLogs(taskId, 'error', `Adming error`);
         await browser.close();
         errorsCount++;
       }
@@ -268,6 +366,7 @@ async function PremiumProx(
     console.log(
       'Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii'
     );
+    await createLogs(taskId, 'normal', `Making the task as Finished`);
     await Task.findByIdAndUpdate(taskId, {
       dateFinished: Date.now(),
       status: 'finished'

@@ -10,7 +10,9 @@ const {
   bandwidth,
   deletebadresults,
   deleteokresults,
-  getAllTasks
+  getAllTasks,
+  getstatuscount,
+  getClickCount
 } = require('../controllers/scrapContoller');
 const rateLimit = require('express-rate-limit');
 
@@ -27,6 +29,8 @@ const rateLimit = require('express-rate-limit');
 router.route('/runpremiumproxyscrap').post(runPremiumProxyScrap);
 router.route('/bandwidth').get(bandwidth);
 router.route('/alltasks').get(getAllTasks);
+router.route('/statuscount/:name').get(getstatuscount);
+router.route('/clickcount/:clicktype').get(getClickCount);
 //router.route('/getbadresults').get(getbadresults);
 //router.route('/deletebadresults').delete(deletebadresults);
 //router.route('/deleteokresults').delete(deleteokresults);

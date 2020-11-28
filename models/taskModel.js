@@ -22,6 +22,12 @@ const taskSchema = new mongoose.Schema(
       type: String,
       default: 'United Stated'
     },
+    logs: [
+      {
+        type: { type: String },
+        message: { type: String }
+      }
+    ],
     googleCountry: {
       type: String,
       default: 'Com'
@@ -109,6 +115,21 @@ taskSchema.virtual('SuccessfulClicksCount').get(function() {
 taskSchema.virtual('FailedClicksCount').get(function() {
   return this.failedClicks.length;
 });
+
+// tourShema.pre(/^find/, function(next) {
+//   this.populate({
+//     path: 'guides',
+//     select: '-__v'
+//   });
+//   next();
+// });
+
+// tourShema.pre('aggregate', function(next) {
+//   this.pipeline().unshift({
+//     $match: { secretTour: { $ne: true } }
+//   });
+//   next();
+// });
 
 const Task = mongoose.model('Task', taskSchema);
 

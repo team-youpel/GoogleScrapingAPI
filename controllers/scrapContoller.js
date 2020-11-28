@@ -5,6 +5,39 @@ const errorsMod = require('./../models/errorsModel');
 const bandwidthFun = require('./../bandwidth');
 const Task = require('../models/taskModel');
 
+const getClickCount = async (req, res) => {
+  const clickType = req.params.clicktype;
+  const clicksCount = await Task.aggregate([
+    {
+      $group: {
+        _id: '$_id',
+        totalAmount: { $sum: '$FailedClicksCount' },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  res.status(200).send({
+    status: 'success',
+    results: clicksCount
+  });
+};
+
+const getstatuscount = async (req, res) => {
+  const statusName = req.params.name;
+  const statusCount = await Task.aggregate([
+    {
+      $match: { status: statusName }
+    },
+    { $group: { _id: '$_id' } }
+  ]);
+
+  res.status(200).send({
+    status: 'success',
+    results: statusCount.length
+  });
+};
+
 const getAllTasks = async (req, res) => {
   const tasks = await Task.find({}).sort({ _id: 'desc' });
   res.status(201).json({
@@ -175,5 +208,7 @@ module.exports = {
   bandwidth,
   deletebadresults,
   deleteokresults,
-  getAllTasks
+  getAllTasks,
+  getstatuscount,
+  getClickCount
 };
