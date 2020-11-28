@@ -23,15 +23,10 @@ cloudinary.config({
 });
 
 async function createLogs(id, type, message) {
-  
-    await Task.findByIdAndUpdate(
-      { _id: id },
-      { $addToSet: { logs: { type, message } } },
-      function(err, model) {
-        console.log(err);
-      }
-    )
-  
+  await Task.findByIdAndUpdate(
+    { _id: id },
+    { $addToSet: { logs: { type, message } } }
+  );
 }
 
 // ! ***************************************************************** ! //
