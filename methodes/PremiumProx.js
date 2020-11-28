@@ -31,7 +31,7 @@ async function createLogs(id, type, message) {
         console.log(err);
       }
     )
-  );
+  
 }
 
 // ! ***************************************************************** ! //
