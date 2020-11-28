@@ -51,7 +51,6 @@ var j = schedule.scheduleJob('*/10 * * * * *', async function() {
         firstQueuedTask[0]._id,
         firstQueuedTask[0].keywordToFocus,
         firstQueuedTask[0].websites,
-        
         firstQueuedTask[0].clickForEachWebsite,
         firstQueuedTask[0].proxyCountry,
         'Desktop',

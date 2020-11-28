@@ -24,7 +24,7 @@ cloudinary.config({
 
 async function createLogs(id, type, message) {
   await Task.findByIdAndUpdate(
-    id,
+    { _id: id },
     { $push: { logs: { type, message } } },
     { safe: true, upsert: true },
     function(err, model) {
