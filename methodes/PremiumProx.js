@@ -1,5 +1,5 @@
 const config = require('../config');
-
+const random = require('random');
 const puppeteer = require('puppeteer-extra');
 const { v1: uuidv1 } = require('uuid');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -73,7 +73,11 @@ async function PremiumProx(
 
   while (success < HowMuch && errorsCount < 500) {
     liveStepCount = success + 1 + '/' + clickForEachWebsite;
-    await createLogs(taskId, 'normal', 'launch the browser');
+    await createLogs(
+      taskId,
+      'normal',
+      `${random.int(1, 100000)} launching the chrome browser`
+    );
     try {
       browser = await puppeteer.launch({
         headless: config.headlessType,
@@ -98,17 +102,25 @@ async function PremiumProx(
       await createLogs(
         taskId,
         'normal',
-        'Block all images and other media files'
+        `${random.int(1, 100000)} Block all images and other media files`
       );
       blockResourcesPlugin.blockedTypes.add('image');
       blockResourcesPlugin.blockedTypes.add('media');
       try {
-        await createLogs(taskId, 'normal', `Opening google.${googleCountry}`);
+        await createLogs(
+          taskId,
+          'normal',
+          `${random.int(1, 100000)} Opening google.${googleCountry}`
+        );
         await page.goto(`https://google.${googleCountry}`, {
           waitUntil: 'networkidle2'
         });
       } catch (error) {
-        await createLogs(taskId, 'normal', `Select the search input`);
+        await createLogs(
+          taskId,
+          'normal',
+          `${random.int(1, 100000)} Select the search input`
+        );
         let proxyIsWorking = true;
         await page
           .waitForSelector('[name=q]')
@@ -129,7 +141,11 @@ async function PremiumProx(
       const elementHandle = await page.$('iframe');
       const frame = await elementHandle.contentFrame();
       const ele = await frame.$('#introAgreeButton > span > span');
-      await createLogs(taskId, 'normal', `Bypass the popup`);
+      await createLogs(
+        taskId,
+        'normal',
+        `${random.int(1, 100000)} Bypass the popup`
+      );
 
       await ele.click();
 
@@ -140,7 +156,7 @@ async function PremiumProx(
       await createLogs(
         taskId,
         'normal',
-        `Typing the keyword : ${keywordToFocus}`
+        `${random.int(1, 100000)} Typing the keyword : ${keywordToFocus}`
       );
       await page.keyboard.type(keywordToFocus, {
         delay: 80
@@ -149,14 +165,21 @@ async function PremiumProx(
       await page.keyboard.press('Enter');
 
       await page.waitFor(9000);
-      await createLogs(taskId, 'normal', `Checking if google return a captcha`);
+      await createLogs(
+        taskId,
+        'normal',
+        `${random.int(1, 100000)} Checking if google return a captcha`
+      );
 
       let captcha = await page.$x(`//*[@id="recaptcha"]`);
       if (captcha.length !== 0) {
         await createLogs(
           taskId,
           'error',
-          `Captcha is here.. retry with another fresh IP`
+          `${random.int(
+            1,
+            100000
+          )} Captcha is here.. retry with another fresh IP`
         );
 
         console.log('CAPTCHA DETECTED');
@@ -168,7 +191,9 @@ async function PremiumProx(
         await createLogs(
           taskId,
           'normal',
-          `check if an ads of ${websites[i]} is available to click`
+          `${random.int(1, 100000)} check if an ads of ${
+            websites[i]
+          } is available to click`
         );
 
         const elements = await page.$x(
@@ -178,7 +203,10 @@ async function PremiumProx(
           await createLogs(
             taskId,
             'error',
-            `no ads for that site with the keyword you selected`
+            `${random.int(
+              1,
+              100000
+            )} no ads for that site with the keyword you selected`
           );
 
           success++;
@@ -188,7 +216,7 @@ async function PremiumProx(
             await createLogs(
               taskId,
               'normal',
-              `Uploading a picture to cloudinary`
+              `${random.int(1, 100000)} Uploading a picture to cloudinary`
             );
 
             await page.screenshot({
@@ -199,7 +227,7 @@ async function PremiumProx(
             await createLogs(
               taskId,
               'error',
-              `cannot take screenshot with 0 width`
+              `${random.int(1, 100000)} cannot take screenshot with 0 width`
             );
 
             throw new Error(
@@ -214,13 +242,17 @@ async function PremiumProx(
               await createLogs(
                 taskId,
                 'normal',
-                `Screenshot is uploaded with success`
+                `${random.int(1, 100000)} Screenshot is uploaded with success`
               );
 
               picturePath2 = res.url;
               let CurrentuserAgent = await browser.userAgent();
               let CurrentViewPort = await page.viewport();
-              await createLogs(taskId, 'normal', `Update the database records`);
+              await createLogs(
+                taskId,
+                'normal',
+                `${random.int(1, 100000)} Update the database records`
+              );
 
               await Task.findOneAndUpdate(
                 { _id: taskId },
@@ -247,7 +279,11 @@ async function PremiumProx(
 
           continue;
         }
-        await createLogs(taskId, 'normal', `Click on the first Ad`);
+        await createLogs(
+          taskId,
+          'normal',
+          `${random.int(1, 100000)} Click on the first Ad`
+        );
         await page.waitFor(3000);
         const newPagePromise = new Promise(x =>
           browser.once('targetcreated', target => x(target.page()))
@@ -266,7 +302,10 @@ async function PremiumProx(
           await createLogs(
             taskId,
             'normal',
-            'Upload a screenshot of the website to cloudinary'
+            `${random.int(
+              1,
+              100000
+            )} Upload a screenshot of the website to cloudinary`
           );
           await page2.screenshot({
             path: `./pictures/${randomnumber}.png`,
@@ -282,7 +321,10 @@ async function PremiumProx(
         await createLogs(
           taskId,
           'normal',
-          'Getting the current page title and current link'
+          `${random.int(
+            1,
+            100000
+          )} Getting the current page title and current link`
         );
 
         const CurrentPageTitle = await page2.title();
@@ -296,14 +338,21 @@ async function PremiumProx(
             await createLogs(
               taskId,
               'normal',
-              'Upload a screenshot of the website to cloudinary'
+              `${random.int(
+                1,
+                100000
+              )} Upload a screenshot of the website to cloudinary`
             );
           });
 
         await page.waitFor(2000);
 
         success++;
-        await createLogs(taskId, 'normal', `Success count ${success}`);
+        await createLogs(
+          taskId,
+          'normal',
+          `${random.int(1, 100000)} Success count ${success}`
+        );
 
         await page.waitFor(2000);
 
@@ -312,13 +361,19 @@ async function PremiumProx(
         await createLogs(
           taskId,
           'normal',
-          `Current UserAgent ${CurrentuserAgent}, current view report ${CurrentViewPort}`
+          `${random.int(
+            1,
+            100000
+          )} Current UserAgent ${CurrentuserAgent}, current view report ${CurrentViewPort}`
         );
 
         await createLogs(
           taskId,
           'normal',
-          `Updating the database record with the new data`
+          `${random.int(
+            1,
+            100000
+          )} Updating the database record with the new data`
         );
 
         await Task.findOneAndUpdate(
@@ -344,7 +399,11 @@ async function PremiumProx(
         await page.bringToFront();
         await page.waitFor(2000);
       }
-      await createLogs(taskId, 'normal', `Closing the browser`);
+      await createLogs(
+        taskId,
+        'normal',
+        `${random.int(1, 100000)} Closing the browser`
+      );
       await browser.close();
     } catch (err) {
       console.log(err);
@@ -354,7 +413,11 @@ async function PremiumProx(
       }
       // ! ADMIN ERRORS
       else {
-        await createLogs(taskId, 'error', `Adming error`);
+        await createLogs(
+          taskId,
+          'error',
+          `${random.int(1, 100000)} Adming error`
+        );
         await browser.close();
         errorsCount++;
       }
@@ -366,7 +429,11 @@ async function PremiumProx(
     console.log(
       'Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii'
     );
-    await createLogs(taskId, 'normal', `Making the task as Finished`);
+    await createLogs(
+      taskId,
+      'normal',
+      `${random.int(1, 100000)} Making the task as Finished`
+    );
     await Task.findByIdAndUpdate(taskId, {
       dateFinished: Date.now(),
       status: 'finished'

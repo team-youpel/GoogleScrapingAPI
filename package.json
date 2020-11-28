@@ -25,6 +25,7 @@
     "puppeteer-extra-plugin-stealth": "^2.6.5",
     "puppeteer-page-proxy": "^1.2.5",
     "puppeteer-recorder": "^1.0.7",
+    "random": "^2.2.0",
     "random-useragent": "^0.3.1",
     "request-promise": "^4.2.5",
     "socket.io": "^2.3.0",
